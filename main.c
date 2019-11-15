@@ -16,8 +16,8 @@
 
 #include "util/read_config.h"
 #include "util/md5.h"
-
-#define SSL_MAX_CONTENT_LEN 1024 //Ã¿´Î×î´óÊı¾İ´«ÊäÁ¿
+#define MAX_VALUE_LEN 1000
+#define SSL_MAX_CONTENT_LEN 1024 //æ¯æ¬¡æœ€å¤§æ•°æ®ä¼ è¾“é‡
 void string_to_md5(char* str, int strlen,unsigned char out_put[32]) {
     unsigned char a[16] = { 0 };
     md5_context ctx;
@@ -47,30 +47,14 @@ int get_time() {
     return time(&t);
 }
 
-void get_login_request(unsigned char request[SSL_MAX_CONTENT_LEN],int* len, FILE *conf_file) {
-#define MAX_VALUE_LEN 1000
+void get_login_request(unsigned char request[SSL_MAX_CONTENT_LEN],int* len, char host[MAX_VALUE_LEN],
+        char account[MAX_VALUE_LEN],char password[MAX_VALUE_LEN],char ssid[MAX_VALUE_LEN],char loginIP[MAX_VALUE_LEN],char mac[MAX_VALUE_LEN]) {
+
 
     char* api = "/";
     char Uip[MAX_VALUE_LEN] = {0};
     unsigned int content_len=0;
-    char host[MAX_VALUE_LEN] = {0};
-    char account[MAX_VALUE_LEN] = {0};
-    char password[MAX_VALUE_LEN] = {0};
-    char ssid[MAX_VALUE_LEN] = {0};
-    char loginIP[MAX_VALUE_LEN] = {0};
-    char mac[MAX_VALUE_LEN] = {0};
 
-
-    struct conf_s conf[]={
-            {"account",CONF_SINGLE,NULL,account},
-            {"password",CONF_SINGLE,NULL,password},
-            {"ssid",CONF_SINGLE,NULL,ssid},
-            {"mac",CONF_SINGLE,NULL,mac},
-            {"loginIP",CONF_SINGLE,NULL,loginIP},
-            {"host",CONF_SINGLE,NULL,host}
-
-    };
-    parse(conf_file,conf);
     if(strlen(account) == 0){
         printf("account not provided in the config file exit\n");
         fflush(stdout);
@@ -105,7 +89,7 @@ void get_login_request(unsigned char request[SSL_MAX_CONTENT_LEN],int* len, FILE
     char md5_str1[MAX_VALUE_LEN];
     char md5_str2[MAX_VALUE_LEN];
 
-    unsigned char date[19] = { 0 };
+    unsigned char date[20] = { 0 };
     get_date(date);
     int time_now = get_time();
     snprintf(md5_str1,MAX_VALUE_LEN, "%s%s", \
@@ -181,66 +165,66 @@ char* strstrc(char* pp,char* pd)
 }
 
 void printError(int Msg,char * cMsg){
-    printf("\nµÇÂ¼·µ»ØĞÅÏ¢£º\n");
+    printf("\nç™»å½•è¿”å›ä¿¡æ¯ï¼š\n");
     switch(Msg){
         case 0:
             break;
         case 1:
             if(strstrc(cMsg,"userid error1") != NULL){
-                printf("ÕËºÅ²»´æÔÚ\n");
+                printf("è´¦å·ä¸å­˜åœ¨\n");
             }else if(strstrc(cMsg,"userid error2") != NULL){
-                printf("±¾IP²»ÔÊĞíWeb·½Ê½µÇÂ¼\n");
+                printf("æœ¬IPä¸å…è®¸Webæ–¹å¼ç™»å½•\n");
             }
             else if(strstrc(cMsg,"userid error3") != NULL){
-                printf("ÃÜÂëÊäÈë´íÎó\n");
+                printf("å¯†ç è¾“å…¥é”™è¯¯\n");
             }
             else if(strstrc(cMsg,"error0") != NULL){
-                printf("±¾IP²»ÔÊĞíWeb·½Ê½µÇÂ¼\n");
+                printf("æœ¬IPä¸å…è®¸Webæ–¹å¼ç™»å½•\n");
             }
             else if(strstrc(cMsg,"error1") != NULL){
-                printf("±¾ÕËºÅ²»ÔÊĞíWeb·½Ê½µÇÂ¼\n");
+                printf("æœ¬è´¦å·ä¸å…è®¸Webæ–¹å¼ç™»å½•\n");
             }
             else if(strstrc(cMsg,"error2") != NULL){
-                printf("±¾ÕËºÅ²»ÔÊĞíĞŞ¸ÄÃÜÂë\n");
+                printf("æœ¬è´¦å·ä¸å…è®¸ä¿®æ”¹å¯†ç \n");
             } else{
                 printf("%s\n", cMsg);
             }
             break;
         case 2:
-            printf("¸ÃÕËºÅÕıÔÚÊ¹ÓÃÖĞ£¬ÇëÄúÓëÍø¹ÜÁªÏµ\n");
+            printf("è¯¥è´¦å·æ­£åœ¨ä½¿ç”¨ä¸­ï¼Œè¯·æ‚¨ä¸ç½‘ç®¡è”ç³»\n");
             break;
         case 3:
-            printf("±¾ÕËºÅÖ»ÄÜÔÚÖ¸¶¨µØÖ·Ê¹ÓÃ\nThis account can be used on the appointed address only.\n");
+            printf("æœ¬è´¦å·åªèƒ½åœ¨æŒ‡å®šåœ°å€ä½¿ç”¨\nThis account can be used on the appointed address only.\n");
             break;
         case 4:
-            printf("±¾ÕËºÅ·ÑÓÃ³¬Ö§»òÊ±³¤Á÷Á¿³¬¹ıÏŞÖÆ\n");
+            printf("æœ¬è´¦å·è´¹ç”¨è¶…æ”¯æˆ–æ—¶é•¿æµé‡è¶…è¿‡é™åˆ¶\n");
             break;
         case 5:
-            printf("±¾ÕËºÅÔİÍ£Ê¹ÓÃ\n");
+            printf("æœ¬è´¦å·æš‚åœä½¿ç”¨\n");
             break;
         case 6:
             printf("System buffer full\n");
             break;
         case 8:
-            printf("±¾ÕËºÅÕıÔÚÊ¹ÓÃ,²»ÄÜĞŞ¸Ä\n");
+            printf("æœ¬è´¦å·æ­£åœ¨ä½¿ç”¨,ä¸èƒ½ä¿®æ”¹\n");
             break;
         case 9:
-            printf("ĞÂÃÜÂëÓëÈ·ÈÏĞÂÃÜÂë²»Æ¥Åä,²»ÄÜĞŞ¸Ä\n");
+            printf("æ–°å¯†ç ä¸ç¡®è®¤æ–°å¯†ç ä¸åŒ¹é…,ä¸èƒ½ä¿®æ”¹\n");
             break;
         case 10:
-            printf("ÃÜÂëĞŞ¸Ä³É¹¦\n");
+            printf("å¯†ç ä¿®æ”¹æˆåŠŸ\n");
             break;
         case 11:
-            printf("±¾ÕËºÅÖ»ÄÜÔÚÖ¸¶¨µØÖ·Ê¹ÓÃ \n");
+            printf("æœ¬è´¦å·åªèƒ½åœ¨æŒ‡å®šåœ°å€ä½¿ç”¨ \n");
             break;
         case 7:
 
             break;
         case 14:
-            printf("×¢Ïú³É¹¦\n");
+            printf("æ³¨é”€æˆåŠŸ\n");
             break;
         case 15:
-            printf("µÇÂ¼³É¹¦\n");
+            printf("ç™»å½•æˆåŠŸ\n");
             break;
     }
     fflush(stdout);
@@ -262,26 +246,6 @@ int findStrBetween(char* buf,char* firstStr,char* secondStr,char result[100]){
         }
     }
     return -1;
-}
-
-void ShowCerts(SSL * ssl){
-    X509 *cert;
-    char *line;
-
-    cert = SSL_get_peer_certificate(ssl);
-    if (cert != NULL)
-    {
-        printf("Êı×ÖÖ¤ÊéĞÅÏ¢:\n");
-        line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
-        printf("Ö¤Êé: %s\n", line);
-        free(line);
-        line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
-        printf("°ä·¢Õß: %s\n", line);
-        free(line);
-        X509_free(cert);
-    }
-    else
-        printf("ÎŞÖ¤ÊéĞÅÏ¢£¡\n");
 }
 
 int main(int argc, char *argv[]){
@@ -330,11 +294,9 @@ int main(int argc, char *argv[]){
         }
     }
 
-    char *hostname="127.0.0.1";
     int sendResult;
     int sockfd;
     char clientbuf[SSL_MAX_CONTENT_LEN];
-    struct hostent *host;//gethostbynameº¯ÊıµÄ²ÎÊı·µ»Ø
     struct sockaddr_in serv_addr;
     SSL_CTX *ctx;
     SSL *ssl;
@@ -351,8 +313,7 @@ int main(int argc, char *argv[]){
 
 #ifdef WIN32
     WSADATA wsaData;
-    // 1 Æô¶¯²¢³õÊ¼»¯winsock(WSAStarup)
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData))//³É¹¦·µ»Ø0
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData))
     {
         return FALSE;
     }
@@ -362,10 +323,31 @@ int main(int argc, char *argv[]){
     sockfd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     serv_addr.sin_family = AF_INET;
 
+
+    char host[MAX_VALUE_LEN] = {0};
+    char account[MAX_VALUE_LEN] = {0};
+    char password[MAX_VALUE_LEN] = {0};
+    char ssid[MAX_VALUE_LEN] = {0};
+    char loginIP[MAX_VALUE_LEN] = {0};
+    char mac[MAX_VALUE_LEN] = {0};
+    struct conf_s conf[]={
+            {"account",CONF_SINGLE,NULL,account},
+            {"password",CONF_SINGLE,NULL,password},
+            {"ssid",CONF_SINGLE,NULL,ssid},
+            {"mac",CONF_SINGLE,NULL,mac},
+            {"loginIP",CONF_SINGLE,NULL,loginIP},
+            {"host",CONF_SINGLE,NULL,host}
+
+    };
+    FILE *conf_file = NULL;
+    conf_file = fopen(config_path,"r");
+    parse(conf_file,conf);
+    fclose(conf_file);
+
 #ifdef WIN32
-    serv_addr.sin_addr.S_un.S_addr = inet_addr("202.202.0.163");
+    serv_addr.sin_addr.S_un.S_addr = inet_addr(host);
 #else
-    serv_addr.sin_addr.s_addr = inet_addr("202.202.0.163");
+    serv_addr.sin_addr.s_addr = inet_addr(host);
 #endif
 
 
@@ -389,16 +371,14 @@ int main(int argc, char *argv[]){
 
     memset(clientbuf,0, SSL_MAX_CONTENT_LEN);
     int len = 0;
-    FILE* conf_file=NULL;
-    conf_file = fopen(config_path,"r");
-    get_login_request(clientbuf,&len,conf_file);
+    get_login_request(clientbuf,&len,host,account,password,ssid,loginIP,mac);
 
     sendResult = SSL_write(ssl, clientbuf, len);
 
     if (sendResult < 0)
-        printf("\nµÇÂ¼ĞÅÏ¢:\n%s·¢ËÍÊ§°Ü£¡´íÎó´úÂëÊÇ%d£¬´íÎóĞÅÏ¢ÊÇ'%s'\n",clientbuf, errno, strerror(errno));
+        printf("\nç™»å½•ä¿¡æ¯:\n%så‘é€å¤±è´¥ï¼é”™è¯¯ä»£ç æ˜¯%dï¼Œé”™è¯¯ä¿¡æ¯æ˜¯'%s'\n",clientbuf, errno, strerror(errno));
     else
-        printf("\nµÇÂ¼ĞÅÏ¢:\n%s\n·¢ËÍ³É¹¦£¬¹²·¢ËÍÁË%d¸ö×Ö½Ú£¡\n",clientbuf, sendResult);
+        printf("\nç™»å½•ä¿¡æ¯:\n%s\nå‘é€æˆåŠŸï¼Œå…±å‘é€äº†%dä¸ªå­—èŠ‚ï¼\n",clientbuf, sendResult);
     memset(clientbuf,0,SSL_MAX_CONTENT_LEN);
     while(1){
         int readReslut = SSL_read(ssl, clientbuf, SSL_MAX_CONTENT_LEN - 1);
@@ -406,12 +386,15 @@ int main(int argc, char *argv[]){
             char new_buf[readReslut];
             clientbuf[readReslut] = '\0';
             snprintf(new_buf,readReslut, "%s",clientbuf);
-            //µÇÂ¼³É¹¦ in gb2312
-            char login_s[100] = {0xb5,0xc7,0xc2,0xbc,0xb3,0xc9,0xb9,0xa6};
-            //ĞÅÏ¢·µ»Ø in gb2312
-            char login_e[100] = {0xd0,0xc5,0xcf,0xa2,0xb7,0xb5,0xbb,0xd8};
+            //ç™»å½•æˆåŠŸ in gb2312
+            char login_s[100] = {'<','t','i','t','l','e','>',0xb5,0xc7,0xc2,0xbc,0xb3,0xc9,0xb9,0xa6,'<','/','t','i','t','l','e','>','\0'};
+            //ä¿¡æ¯è¿”å› in gb2312
+            char login_e[100] = {0xd0,0xc5,0xcf,0xa2,0xb7,0xb5,0xbb,0xd8,'\0'};
+
+            fflush(stdout);
+
             if(strstrc((char*)new_buf,login_s) != NULL){
-                printf("\n\nµÇÂ¼³É¹¦\n\n");
+                printf("\n\nç™»å½•æˆåŠŸ\n\n");
                 break;
             }else{
                 if(strstrc((char*)new_buf,login_e) != NULL){
@@ -434,7 +417,7 @@ int main(int argc, char *argv[]){
     SSL_free(ssl);
     close(sockfd);
     SSL_CTX_free(ctx);
-    printf("\n°´ÈÎÒâ¼üÍË³ö³ÌĞò\n");
+    printf("\næŒ‰ä»»æ„é”®é€€å‡ºç¨‹åº\n");
     fflush(stdout);
     getchar();
     return 1;
